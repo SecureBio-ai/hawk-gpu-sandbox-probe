@@ -1,0 +1,18 @@
+[project]
+name = "gpu-sandbox-probe"
+version = "0.1.0"
+description = "One-sample Inspect Hawk eval that checks GPU sandbox services work; an infrastructure test, not an eval"
+requires-python = ">=3.12"
+# Unpinned on purpose: Hawk's runner installs its own inspect-ai and
+# inspect_k8s_sandbox, and a conflicting pin here would fail the install.
+dependencies = ["inspect-ai"]
+
+[project.entry-points.inspect_ai]
+gpu_sandbox_probe = "gpu_sandbox_probe._registry"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gpu_sandbox_probe"]

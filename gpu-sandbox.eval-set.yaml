@@ -1,0 +1,20 @@
+# GPU sandbox probe (see README.md). Replace <COMMIT_SHA> with a commit of this
+# repository before submitting; the README has a one-liner.
+name: gpu-sandbox-probe
+tasks:
+  # An infrastructure test, not an eval.
+  - package: "git+https://github.com/SecureBio-ai/hawk-gpu-sandbox-probe.git@<COMMIT_SHA>"
+    name: gpu_sandbox_probe
+    items:
+      - name: gpu_sandbox_probe
+# The probe makes no real model call. Hawk exempts hardcoded* models from the
+# Middleman group check, so nothing needs registering.
+models:
+  - package: "inspect-test-utils==1.5.0"
+    name: hardcoded
+    items:
+      - name: hardcoded
+        args:
+          answer: "OK"
+isolation: standard
+limit: 1

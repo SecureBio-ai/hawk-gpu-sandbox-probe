@@ -1,0 +1,28 @@
+# Sandbox for the GPU probe (inspect_k8s_sandbox agent-env chart values).
+#
+# It has the same shape a GPU scorer would use: a CPU `default` service, where
+# an agent would work, and a network-isolated GPU service that only the scorer
+# reaches, through Kubernetes exec. Images are pinned by digest.
+services:
+  default:
+    image: public.ecr.aws/docker/library/python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+    command: ["tail", "-f", "/dev/null"]
+    # The chart's implicit default asks for gVisor, which not every deployment installs.
+    runtimeClassName: CLUSTER_DEFAULT
+  gpu:
+    # A realistic GPU image: CUDA 12.6 still supports the T4 (sm_75) in Hawk's
+    # built-in g4dn Karpenter pool. About 3 GB compressed.
+    image: pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime@sha256:1262abc856a428933c0477b4be87079173a0b087b7691c47fcb396b7b5775c56
+    command: ["tail", "-f", "/dev/null"]
+    # Left to the node's default, which the GPU operator sets to the nvidia runtime.
+    runtimeClassName: CLUSTER_DEFAULT
+    # No ingress and no egress. The scorer still reaches it through exec.
+    networkIsolated: true
+    resources:
+      requests:
+        cpu: "1"
+        memory: 4Gi
+      # Hawk sees the GPU here and adds the GPU taint toleration itself.
+      limits:
+        memory: 8Gi
+        nvidia.com/gpu: 1
